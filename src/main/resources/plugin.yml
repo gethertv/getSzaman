@@ -1,0 +1,8 @@
+name: getSzaman
+version: '${project.version}'
+main: me.gethertv.szaman.Szaman
+api-version: 1.16
+softdepend: [DeluxeCombat, PlaceholderAPI]
+commands:
+  szaman:
+  aszaman:

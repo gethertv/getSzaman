@@ -1,0 +1,220 @@
+mysql:
+  host: localhost
+  username: root
+  password: ""
+  database: szaman
+  port: 3306
+  ssl: false
+
+inv:
+  size: 27
+  title: "&0Szaman"
+
+lang:
+  success-upgrade: "&aPomyslnie ulepszono!"
+  no-points: "&cNie posiadasz tylu punktow!"
+  max-level: "&cPosiadasz najwyzszy poziom!"
+  get-confinement: "&eOtrzymales efekt uwiezienia!"
+  confinement-cooldown: "&cPosiadasz efekt uwiezienia!"
+
+
+multiply-drop:
+  1: 1
+  2: 1.5
+  3: 2
+  4: 2.5
+  5: 3
+
+vampirism-chance:
+  1: 1.25
+  2: 2.5
+  3: 3.75
+  4: 5.00
+
+drop-material:
+  - "DIAMOND_ORE"
+  - "DIAMOND_BLOCK"
+
+cost-data:
+  health:
+    1: 5
+    2: 10
+    3: 20
+    4: 40
+    5: 50
+  speed:
+    1: 5
+    2: 10
+    3: 20
+    4: 40
+    5: 50
+  strength:
+    1: 5
+    2: 10
+    3: 20
+    4: 40
+    5: 50
+  vampirism:
+    1: 5
+    2: 10
+    3: 20
+    4: 40
+    5: 50
+  boostdrop:
+    1: 5
+    2: 10
+    3: 20
+    4: 40
+    5: 50
+  confinement:
+    1: 20
+    2: 40
+    3: 60
+    4: 80
+    5: 100
+
+# how long should the perk last
+confinement-cooldown:
+  # 1 level -> 2 second
+  1: 2
+  2: 3
+  3: 4
+  4: 5
+
+# you need install my second plugin 'getFireworkNoLimit'
+nolimit-firework:
+  # price for 1pc of firework
+  cost: 10
+  command: "getfirework give {player} 1"
+  enable: true
+  slot: 6
+  material: FIREWORK_ROCKET
+  displayname: "&5Bez limitu fajerwerka"
+  lore:
+    - "&7"
+    - "&7 Koszt: &f{price} *"
+    - "&7"
+    - "&eKliknij, aby zakupic!"
+
+
+confinement:
+  # chance to confinement user
+  chance: 5.00
+  enable: true
+  slot: 2
+  material: LEAD
+  displayname: "&cPerk uwiezienia"
+  lore:
+    - "&7"
+    - "&7Aktualny poziom: &f{level}"
+    - "&7"
+    - "&7Poziomy:"
+    - "&7 1: "
+    - "&7 2: "
+    - "&7 3: "
+    - "&7 4: "
+    - "&7 5: "
+    - "&7"
+    - "&7 Koszt: &f{price} *"
+    - "&7"
+    - "&eKliknij, aby ulepszyc!"
+
+health:
+  enable: true
+  slot: 11
+  material: RED_DYE
+  displayname: "&cPerk zycie"
+  lore:
+    - "&7"
+    - "&7Aktualny poziom: &f{level}"
+    - "&7"
+    - "&7Poziomy:"
+    - "&7 1: "
+    - "&7 2: "
+    - "&7 3: "
+    - "&7 4: "
+    - "&7 5: "
+    - "&7"
+    - "&7 Koszt: &f{price} *"
+    - "&7"
+    - "&eKliknij, aby ulepszyc!"
+    -
+speed:
+  enable: true
+  slot: 12
+  material: LIGHT_BLUE_DYE
+  displayname: "&bPerk szybkosc"
+  lore:
+    - "&7"
+    - "&7Aktualny poziom: &f{level}"
+    - "&7"
+    - "&7Poziomy:"
+    - "&7 1: "
+    - "&7 2: "
+    - "&7 3: "
+    - "&7 4: "
+    - "&7 5: "
+    - "&7"
+    - "&7 Koszt: &f{price} *"
+    - "&7"
+    - "&eKliknij, aby ulepszyc!"
+
+strength:
+  enable: true
+  slot: 13
+  material: POTION
+  displayname: "&cPerk sily"
+  lore:
+    - "&7"
+    - "&7Aktualny poziom: &f{level}"
+    - "&7"
+    - "&7Poziomy:"
+    - "&7 1: "
+    - "&7 2: "
+    - "&7 3: "
+    - "&7 4: "
+    - "&7 5: "
+    - "&7"
+    - "&7 Koszt: &f{price} *"
+    - "&7"
+    - "&eKliknij, aby ulepszyc!"
+
+vampirism:
+  enable: true
+  slot: 14
+  material: NETHERITE_SWORD
+  displayname: "&cPerk wampiryzmu"
+  lore:
+    - "&7"
+    - "&7Aktualny poziom: &f{level}"
+    - "&7"
+    - "&7Poziomy:"
+    - "&7 1: "
+    - "&7 2: "
+    - "&7 3: "
+    - "&7 4: "
+    - "&7 5: "
+    - "&7"
+    - "&7 Koszt: &f{price} *"
+    - "&7"
+    - "&eKliknij, aby ulepszyc!"
+
+boostdrop:
+  enable: true
+  slot: 15
+  material: NETHERITE_PICKAXE
+  displayname: "&cPerk dropu"
+  lore:
+    - "&7"
+    - "&7Aktualny poziom: &f{level}"
+    - "&7"
+    - "&7Poziomy:"
+    - "&7 1: "
+    - "&7 2: "
+    - "&7 3: "
+    - "&7 4: "
+    - "&7 5: "
+    - "&7"
+    - "&7 Koszt: &f{price} *"
+    - "&7"
+    - "&eKliknij, aby ulepszyc!"
