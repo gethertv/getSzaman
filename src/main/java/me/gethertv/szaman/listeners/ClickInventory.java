@@ -1,7 +1,10 @@
 package me.gethertv.szaman.listeners;
 
 import me.gethertv.szaman.Szaman;
+import me.gethertv.szaman.data.PerkManager;
+import me.gethertv.szaman.data.PerkType;
 import me.gethertv.szaman.data.User;
+import me.gethertv.szaman.type.SellType;
 import me.gethertv.szaman.utils.ColorFixer;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
@@ -33,22 +36,7 @@ public class ClickInventory implements Listener {
                     if (!config.getBoolean("health.enable"))
                         return;
 
-                    Integer integer = Szaman.getInstance().getHealthCost().get(user.getHealthLevel() + 1);
-                    if (integer == null) {
-                        player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.max-level")));
-                        player.closeInventory();
-                        return;
-                    }
-                    if (!hasPoints(user.getPoints(), integer)) {
-                        player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.no-points")));
-                        player.closeInventory();
-                        return;
-                    }
-                    user.setPoints(user.getPoints() - integer);
-                    user.setHealthLevel(user.getHealthLevel() + 1);
-                    player.closeInventory();
-                    player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.success-upgrade")));
-                    player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(user.getHealthLevel() * 1 + 20);
+                    Szaman.getInstance().getPerkData().get(PerkType.HEALTH).upgrade(player, PerkType.HEALTH);
                     return;
                 }
 
@@ -57,22 +45,7 @@ public class ClickInventory implements Listener {
                     if (!config.getBoolean("speed.enable"))
                         return;
 
-                    Integer integer = Szaman.getInstance().getSpeedCost().get(user.getSpeedLevel() + 1);
-                    if (integer == null) {
-                        player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.max-level")));
-                        player.closeInventory();
-                        return;
-                    }
-                    if (!hasPoints(user.getPoints(), integer)) {
-                        player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.no-points")));
-                        player.closeInventory();
-                        return;
-                    }
-                    user.setPoints(user.getPoints() - integer);
-                    user.setSpeedLevel(user.getSpeedLevel() + 1);
-                    player.closeInventory();
-                    player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.success-upgrade")));
-                    player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue((user.getSpeedLevel() * 0.05 * 0.1) + 0.1);
+                    Szaman.getInstance().getPerkData().get(PerkType.SPEED).upgrade(player, PerkType.SPEED);
                     return;
                 }
 
@@ -81,22 +54,7 @@ public class ClickInventory implements Listener {
                     if (!config.getBoolean("strength.enable"))
                         return;
 
-                    Integer integer = Szaman.getInstance().getStrengthCost().get(user.getStrengthLevel() + 1);
-                    if (integer == null) {
-                        player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.max-level")));
-                        player.closeInventory();
-                        return;
-                    }
-                    if (!hasPoints(user.getPoints(), integer)) {
-                        player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.no-points")));
-                        player.closeInventory();
-                        return;
-                    }
-                    user.setPoints(user.getPoints() - integer);
-                    user.setStrengthLevel(user.getStrengthLevel() + 1);
-                    player.closeInventory();
-                    player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.success-upgrade")));
-                    player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(2 + (user.getStrengthLevel() * 2));
+                    Szaman.getInstance().getPerkData().get(PerkType.STRENGTH).upgrade(player, PerkType.STRENGTH);
                     return;
                 }
 
@@ -105,21 +63,7 @@ public class ClickInventory implements Listener {
                     if (!config.getBoolean("vampirism.enable"))
                         return;
 
-                    Integer integer = Szaman.getInstance().getVampirismCost().get(user.getVampirismLevel() + 1);
-                    if (integer == null) {
-                        player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.max-level")));
-                        player.closeInventory();
-                        return;
-                    }
-                    if (!hasPoints(user.getPoints(), integer)) {
-                        player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.no-points")));
-                        player.closeInventory();
-                        return;
-                    }
-                    user.setPoints(user.getPoints() - integer);
-                    user.setVampirismLevel(user.getVampirismLevel() + 1);
-                    player.closeInventory();
-                    player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.success-upgrade")));
+                    Szaman.getInstance().getPerkData().get(PerkType.VAMPIRISM).upgrade(player, PerkType.VAMPIRISM);
                     return;
                 }
 
@@ -128,21 +72,7 @@ public class ClickInventory implements Listener {
                     if (!config.getBoolean("boostdrop.enable"))
                         return;
 
-                    Integer integer = Szaman.getInstance().getSpeedCost().get(user.getDropBoostLevel() + 1);
-                    if (integer == null) {
-                        player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.max-level")));
-                        player.closeInventory();
-                        return;
-                    }
-                    if (!hasPoints(user.getPoints(), integer)) {
-                        player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.no-points")));
-                        player.closeInventory();
-                        return;
-                    }
-                    user.setPoints(user.getPoints() - integer);
-                    user.setDropBoostLevel(user.getDropBoostLevel() + 1);
-                    player.closeInventory();
-                    player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.success-upgrade")));
+                    Szaman.getInstance().getPerkData().get(PerkType.BOOSTDROP).upgrade(player, PerkType.BOOSTDROP);
                     return;
                 }
 
@@ -151,21 +81,7 @@ public class ClickInventory implements Listener {
                     if (!config.getBoolean("confinement.enable"))
                         return;
 
-                    Integer integer = Szaman.getInstance().getConfinementCost().get(user.getConfinementLevel() + 1);
-                    if (integer == null) {
-                        player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.max-level")));
-                        player.closeInventory();
-                        return;
-                    }
-                    if (!hasPoints(user.getPoints(), integer)) {
-                        player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.no-points")));
-                        player.closeInventory();
-                        return;
-                    }
-                    user.setPoints(user.getPoints() - integer);
-                    user.setConfinementLevel(user.getConfinementLevel() + 1);
-                    player.closeInventory();
-                    player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.success-upgrade")));
+                    Szaman.getInstance().getPerkData().get(PerkType.CONFINEMENT).upgrade(player, PerkType.CONFINEMENT);
                     return;
                 }
 
@@ -175,12 +91,32 @@ public class ClickInventory implements Listener {
                         return;
 
                     Integer integer = config.getInt("nolimit-firework.cost");
-                    if (!hasPoints(user.getPoints(), integer)) {
-                        player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.no-points")));
-                        player.closeInventory();
-                        return;
+                    if(Szaman.SELL_TYPE== SellType.COINS) {
+                        if (!hasPoints(user.getPoints(), integer)) {
+                            player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.no-points")));
+                            player.closeInventory();
+                            return;
+                        }
+                        user.setPoints(user.getPoints() - integer);
+
                     }
-                    user.setPoints(user.getPoints() - integer);
+                    if(Szaman.SELL_TYPE==SellType.ITEM)
+                    {
+                        if(Szaman.ITEM_ODLAMEK==null)
+                        {
+                            player.sendMessage(ColorFixer.addColors("&cBlad! Ustaw /aszaman setodlamek"));
+                            return;
+                        }
+                        int calcItem = PerkManager.calcItem(player, Szaman.ITEM_ODLAMEK);
+                        if(calcItem<integer)
+                        {
+                            player.sendTitle(ColorFixer.addColors("&7"), ColorFixer.addColors(config.getString("lang.no-points")));
+                            player.closeInventory();
+                            return;
+                        }
+                        PerkManager.removeItem(player, Szaman.ITEM_ODLAMEK, integer);
+
+                    }
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
                             config.getString("nolimit-firework.command")
                                     .replace("{player}", player.getName())

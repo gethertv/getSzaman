@@ -1,2 +1,11 @@
-package me.gethertv.szaman.data;public class PerkType {
+package me.gethertv.szaman.data;
+
+public enum PerkType {
+    STRENGTH,
+    HEALTH,
+    SPEED,
+    VAMPIRISM,
+    BOOSTDROP,
+    CONFINEMENT
+
 }

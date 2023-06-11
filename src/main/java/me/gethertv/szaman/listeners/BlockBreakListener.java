@@ -1,6 +1,7 @@
 package me.gethertv.szaman.listeners;
 
 import me.gethertv.szaman.Szaman;
+import me.gethertv.szaman.data.PerkType;
 import me.gethertv.szaman.data.User;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -37,9 +38,11 @@ public class BlockBreakListener implements Listener {
             if(user==null)
                 return;
 
-            Double multiply = plugin.getDropMultiply().get(user.getDropBoostLevel());
-            if(multiply==null)
+            int level = user.getLevel(PerkType.BOOSTDROP);
+            if(level<=0)
                 return;
+
+            double multiply = plugin.getPerkData().get(PerkType.BOOSTDROP).getPerk(level).getValue();
 
             Location loc = event.getBlock().getLocation();
             items.forEach(item -> {

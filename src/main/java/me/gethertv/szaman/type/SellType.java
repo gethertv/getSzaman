@@ -1,2 +1,5 @@
-package me.gethertv.szaman.type;public enum SellType {
+package me.gethertv.szaman.type;
+public enum SellType {
+    ITEM,
+    COINS
 }

@@ -2,7 +2,10 @@ package me.gethertv.szaman.listeners;
 
 import me.gethertv.szaman.Szaman;
 import me.gethertv.szaman.data.LastDamage;
+import me.gethertv.szaman.data.Perk;
+import me.gethertv.szaman.data.PerkType;
 import me.gethertv.szaman.data.User;
+import me.gethertv.szaman.type.SellType;
 import me.gethertv.szaman.utils.ColorFixer;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
@@ -41,6 +44,8 @@ public class DamageEntity implements Listener {
         if(!lastDamage.getDamager().isOnline())
             return;
 
+        if(Szaman.SELL_TYPE!=SellType.COINS)
+            return;
 
         User user = Szaman.getInstance().getUserData().get(lastDamage.getDamager().getUniqueId());
         if(user.getLastTimeKill().get(player.getUniqueId())!=null)
@@ -59,19 +64,23 @@ public class DamageEntity implements Listener {
         if(!(event.getDamager() instanceof Player))
             return;
 
+
+
         Player player = (Player) event.getDamager();
         User user = Szaman.getInstance().getUserData().get(player.getUniqueId());
         if(event.getEntity() instanceof Player)
         {
             Player victim = (Player) event.getEntity();
             lastHit.put(victim.getUniqueId(), new LastDamage(player, System.currentTimeMillis()+1000L*30));
-            if(user.getConfinementLevel()>0)
+            int level = user.getLevel(PerkType.CONFINEMENT);
+            if(level>0)
             {
                 if(runConfinement()) {
-                    if (!Szaman.getInstance().getConfig().isSet("confinement-cooldown." + user.getConfinementLevel()))
+                    Perk perk = Szaman.getInstance().getPerkData().get(PerkType.CONFINEMENT).getPerk(level);
+                    if(perk==null)
                         return;
 
-                    double cooldown = Szaman.getInstance().getConfig().getDouble("confinement-cooldown." + user.getConfinementLevel());
+                    double cooldown = perk.getValue();
 
                     double valueTime = 1000 * cooldown;
                     InteractListener.getFireworkDisable().put(victim.getUniqueId(), System.currentTimeMillis() + (int) valueTime);
@@ -80,13 +89,14 @@ public class DamageEntity implements Listener {
             }
         }
 
-        if(user.getVampirismLevel()<=0)
+        int levelVampirism = user.getLevel(PerkType.VAMPIRISM);
+        if(levelVampirism<=0)
             return;
 
         double y = 100.0D;
         double x = 0.0D;
 
-        double chanceWin = Szaman.getInstance().getVampirismData().get(user.getVampirismLevel());
+        double chanceWin = Szaman.getInstance().getPerkData().get(PerkType.VAMPIRISM).getPerk(levelVampirism).getValue();
         y -= chanceWin;
 
         double start = random.nextDouble() * (y - x) + x;
@@ -108,6 +118,7 @@ public class DamageEntity implements Listener {
         double y = 100.0D;
         double x = 0.0D;
 
+        //Bukkit.broadcastMessage("#CONFINEMENT");
         y -= Szaman.getInstance().getChanceConfinement();
 
         double start = random.nextDouble() * (y - x) + x;

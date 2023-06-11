@@ -10,46 +10,47 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.text.DecimalFormat;
+import java.util.*;
 
 public class User {
 
     private Player player;
     private int points;
-    private int healthLevel;
-    private int speedLevel;
-    private int strengthLevel;
-    private int vampirismLevel;
-    private int dropBoostLevel;
-    private int confinementLevel;
+
+    private HashMap<PerkType, Integer> levelPerks;
 
     private Inventory inventory;
 
     private HashMap<UUID, Long> lastTimeKill;
+    private DecimalFormat decimalFormat = new DecimalFormat("#.#");
 
     public User(Player player, int points, int healthLevel, int speedLevel, int strengthLevel, int vampirismLevel, int dropBoostLevel, int confinementLevel, HashMap<UUID, Long> lastTimeKill) {
+        this.levelPerks = new HashMap<>();
         this.player = player;
         this.points = points;
-        this.healthLevel = healthLevel;
-        this.speedLevel = speedLevel;
-        this.strengthLevel = strengthLevel;
-        this.vampirismLevel = vampirismLevel;
-        this.dropBoostLevel = dropBoostLevel;
-        this.confinementLevel = confinementLevel;
+
+
+        levelPerks.put(PerkType.HEALTH, healthLevel);
+        levelPerks.put(PerkType.SPEED, speedLevel);
+        levelPerks.put(PerkType.STRENGTH, strengthLevel);
+        levelPerks.put(PerkType.VAMPIRISM, vampirismLevel);
+        levelPerks.put(PerkType.BOOSTDROP, dropBoostLevel);
+        levelPerks.put(PerkType.CONFINEMENT, confinementLevel);
+
         this.lastTimeKill = lastTimeKill;
     }
 
     public User(Player player) {
+        this.levelPerks = new HashMap<>();
         this.player = player;
         this.points = 0;
-        this.healthLevel = 0;
-        this.speedLevel = 0;
-        this.strengthLevel = 0;
-        this.vampirismLevel = 0;
-        this.dropBoostLevel = 0;
+        levelPerks.put(PerkType.HEALTH, 0);
+        levelPerks.put(PerkType.SPEED, 0);
+        levelPerks.put(PerkType.STRENGTH, 0);
+        levelPerks.put(PerkType.VAMPIRISM, 0);
+        levelPerks.put(PerkType.BOOSTDROP, 0);
+        levelPerks.put(PerkType.CONFINEMENT, 0);
         this.lastTimeKill = new HashMap<>();
     }
 
@@ -71,50 +72,162 @@ public class User {
 
         FileConfiguration config = Szaman.getInstance().getConfig();
 
-        if (config.getBoolean("health.enable"))
-            loadPerk("health", healthLevel, (plugin.getHealthCost().get(healthLevel + 1) != null) ? plugin.getHealthCost().get(healthLevel + 1) : 0);
+
+
+        if (config.getBoolean("health.enable")) {
+            int level = getLevel(PerkType.HEALTH);
+            Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.HEALTH).getPerk(level+1);
+            loadPerk(PerkType.HEALTH, level, nextPerk!=null ? nextPerk.getCost() : 0);
+        }
         if (config.getBoolean("speed.enable"))
-            loadPerk("speed", speedLevel, (plugin.getSpeedCost().get(speedLevel + 1) != null) ? plugin.getSpeedCost().get(speedLevel + 1) : 0);
+        {
+            int level = getLevel(PerkType.SPEED);
+            Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.SPEED).getPerk(level+1);
+            loadPerk(PerkType.SPEED, level , nextPerk!=null ? nextPerk.getCost() : 0);
+        }
         if (config.getBoolean("strength.enable"))
-            loadPerk("strength", strengthLevel, (plugin.getStrengthCost().get(strengthLevel + 1) != null) ? plugin.getStrengthCost().get(strengthLevel + 1) : 0);
+        {
+            int level = getLevel(PerkType.STRENGTH);
+            Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.STRENGTH).getPerk(level+1);
+            loadPerk(PerkType.STRENGTH, level , nextPerk!=null ? nextPerk.getCost() : 0);
+        }
         if (config.getBoolean("vampirism.enable"))
-            loadPerk("vampirism", vampirismLevel, (plugin.getVampirismCost().get(vampirismLevel + 1) != null) ? plugin.getVampirismCost().get(vampirismLevel + 1) : 0);
+        {
+            int level = getLevel(PerkType.VAMPIRISM);
+            Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.VAMPIRISM).getPerk(level+1);
+            loadPerk(PerkType.VAMPIRISM, level , nextPerk!=null ? nextPerk.getCost() : 0);
+        }
         if (config.getBoolean("boostdrop.enable"))
-            loadPerk("boostdrop", dropBoostLevel, (plugin.getBoostDropCost().get(dropBoostLevel + 1) != null) ? plugin.getBoostDropCost().get(dropBoostLevel + 1) : 0);
+        {
+            int level = getLevel(PerkType.BOOSTDROP);
+            Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.BOOSTDROP).getPerk(level+1);
+            loadPerk(PerkType.BOOSTDROP, level , nextPerk!=null ? nextPerk.getCost() : 0);
+        }
         if (config.getBoolean("confinement.enable"))
-            loadPerk("confinement", confinementLevel, (plugin.getConfinementCost().get(confinementLevel + 1) != null) ? plugin.getConfinementCost().get(confinementLevel + 1) : 0);
+        {
+            int level = getLevel(PerkType.CONFINEMENT);
+            Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.CONFINEMENT).getPerk(level+1);
+            loadPerk(PerkType.CONFINEMENT, level , nextPerk!=null ? nextPerk.getCost() : 0);
+        }
         if (config.getBoolean("nolimit-firework.enable"))
-            loadPerk("nolimit-firework", 0, config.getInt("nolimit-firework.cost"));
+        {
+            loadPerkFirework("nolimit-firework", config.getInt("nolimit-firework.cost"));
+        }
+
 
     }
 
-    public void loadPerk(String name, int actuallyLevel, int price) {
+    private void loadPerkFirework(String name, int price) {
+
         FileConfiguration config = Szaman.getInstance().getConfig();
-        {
-            ItemStack itemStack = new ItemStack(Material.valueOf(config.getString(name + ".material").toUpperCase()));
-            ItemMeta itemMeta = itemStack.getItemMeta();
-            itemMeta.setDisplayName(ColorFixer.addColors(config.getString(name + ".displayname")));
-            List<String> lore = new ArrayList<>();
-            lore.addAll(config.getStringList(name + ".lore"));
-            itemMeta.setLore(ColorFixer.addLorePerks(
-                    lore,
-                    actuallyLevel,
-                    price));
 
-            itemStack.setItemMeta(itemMeta);
 
-            inventory.setItem(config.getInt(name + ".slot"), itemStack);
+        ItemStack itemStack = new ItemStack(Material.valueOf(config.getString( name+ ".material").toUpperCase()));
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        itemMeta.setDisplayName(ColorFixer.addColors(config.getString(name + ".displayname")));
+        List<String> lore = new ArrayList<>();
+        lore.addAll(config.getStringList(name + ".lore"));
+
+
+        List<String> infoLore = new ArrayList<>();
+
+        itemMeta.setLore(ColorFixer.addLorePerks(
+                lore,
+                price,
+                infoLore));
+
+        itemStack.setItemMeta(itemMeta);
+
+        inventory.setItem(config.getInt(name + ".slot"), itemStack);
+
+    }
+
+    public void loadPerk(PerkType type, int userLevel, int price) {
+
+        FileConfiguration config = Szaman.getInstance().getConfig();
+        String name = type.name().toLowerCase();
+
+
+        PerkManager perkManager = Szaman.getInstance().getPerkData().get(type);
+
+
+        ItemStack itemStack = new ItemStack(Material.valueOf(config.getString( name+ ".material").toUpperCase()));
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        itemMeta.setDisplayName(ColorFixer.addColors(config.getString(name + ".displayname")));
+        List<String> lore = new ArrayList<>();
+        lore.addAll(config.getStringList(name + ".lore"));
+
+
+        List<String> infoLore = new ArrayList<>();
+
+
+        for (Map.Entry<Integer, Perk> entry : perkManager.getPerkLevels().entrySet()) {
+            Integer level = entry.getKey();
+            Perk perk = entry.getValue();
+            String active = config.getString(name+".format.active");
+            String noActive = config.getString(name+".format.no-active");
+            if(level==userLevel)
+                infoLore.add(active
+                        .replace("{level}", String.valueOf(level))
+                        .replace("{value}", decimalFormat.format(perk.getValue()))
+                );
+
+            else
+                infoLore.add(noActive
+                        .replace("{level}", String.valueOf(level))
+                        .replace("{value}", decimalFormat.format(perk.getValue()))
+                );
         }
+
+
+        itemMeta.setLore(ColorFixer.addLorePerks(
+                lore,
+                price,
+                infoLore));
+
+        itemStack.setItemMeta(itemMeta);
+
+        inventory.setItem(config.getInt(name + ".slot"), itemStack);
+
+
     }
 
     private void fillBackground() {
-        ItemStack itemStack = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(ColorFixer.addColors("&7 "));
-        itemStack.setItemMeta(itemMeta);
-        for (int i = 0; i < inventory.getSize(); i++) {
-            inventory.setItem(i, itemStack);
+        FileConfiguration config = Szaman.getInstance().getConfig();
+        for(String key : config.getConfigurationSection("background").getKeys(false))
+        {
+            ItemStack itemStack = new ItemStack(Material.valueOf(config.getString("background."+key+".material")));
+            ItemMeta itemMeta = itemStack.getItemMeta();
+            itemMeta.setDisplayName(ColorFixer.addColors(config.getString("background."+key+".displayname")));
+            List<String> lore = new ArrayList<>();
+            lore.addAll(config.getStringList("background."+key+".lore"));
+
+            itemMeta.setLore(ColorFixer.addColors(lore));
+
+            itemStack.setItemMeta(itemMeta);
+
+            List<Integer> slots = new ArrayList<>();
+            slots.addAll(config.getIntegerList("background."+key+".slots"));
+
+            for (int slot : slots) {
+                inventory.setItem(slot, itemStack);
+            }
         }
+
+    }
+
+    public void setLevelPerk(PerkType perkType, int level)
+    {
+        levelPerks.put(perkType, level);
+    }
+
+    public int getLevel(PerkType perkType)
+    {
+      return levelPerks.get(perkType);
+    }
+    public void upgradeLevel(PerkType perkType)
+    {
+        levelPerks.put(perkType, levelPerks.get(perkType)+1);
     }
 
     public HashMap<UUID, Long> getLastTimeKill() {
@@ -141,51 +254,4 @@ public class User {
         this.player = player;
     }
 
-    public int getHealthLevel() {
-        return healthLevel;
-    }
-
-    public void setHealthLevel(int healthLevel) {
-        this.healthLevel = healthLevel;
-    }
-
-    public int getSpeedLevel() {
-        return speedLevel;
-    }
-
-    public void setSpeedLevel(int speedLevel) {
-        this.speedLevel = speedLevel;
-    }
-
-    public int getStrengthLevel() {
-        return strengthLevel;
-    }
-
-    public void setStrengthLevel(int strengthLevel) {
-        this.strengthLevel = strengthLevel;
-    }
-
-    public int getVampirismLevel() {
-        return vampirismLevel;
-    }
-
-    public void setVampirismLevel(int vampirismLevel) {
-        this.vampirismLevel = vampirismLevel;
-    }
-
-    public int getDropBoostLevel() {
-        return dropBoostLevel;
-    }
-
-    public void setDropBoostLevel(int dropBoostLevel) {
-        this.dropBoostLevel = dropBoostLevel;
-    }
-
-    public int getConfinementLevel() {
-        return confinementLevel;
-    }
-
-    public void setConfinementLevel(int confinementLevel) {
-        this.confinementLevel = confinementLevel;
-    }
 }

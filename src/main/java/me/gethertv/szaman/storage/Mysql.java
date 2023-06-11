@@ -1,5 +1,6 @@
 package me.gethertv.szaman.storage;
 import me.gethertv.szaman.Szaman;
+import me.gethertv.szaman.data.PerkType;
 import me.gethertv.szaman.data.User;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,15 +18,18 @@ public class Mysql {
     private String port;
     private boolean ssl;
     private boolean isFinished;
+
+    private String customUrlConnection;
     private Connection connection;
 
-    public Mysql(String host, String username, String password, String database, String port, boolean ssl) {
+    public Mysql(String host, String username, String password, String database, String port, String customUrlConnection, boolean ssl) {
         this.host = host;
         this.username = username;
         this.password = password;
         this.database = database;
         this.port = port;
         this.ssl = ssl;
+        this.customUrlConnection = customUrlConnection;
 
         openConnection();
         createTable();
@@ -78,7 +82,12 @@ public class Mysql {
             properties.setProperty("requireSSL", String.valueOf(useSSL()));
             properties.setProperty("verifyServerCertificate", "false");
             String str = "jdbc:mysql://" + getHost() + ":" + getPort() + "/" + getDatabase();
-            this.connection = DriverManager.getConnection(str, properties);
+            if(customUrlConnection!=null)
+                this.connection = DriverManager.getConnection(customUrlConnection);
+            else
+                this.connection = DriverManager.getConnection(str, properties);
+
+
             l2 = System.currentTimeMillis();
             this.isFinished = true;
             System.out.println("[mysql] Connected successfully");
@@ -183,12 +192,12 @@ public class Mysql {
 
         update("UPDATE szaman SET " +
                 "points = '"+user.getPoints()+"', " +
-                "health = '"+user.getHealthLevel()+"', " +
-                "speed = '"+user.getSpeedLevel()+"', " +
-                "strength = '"+user.getStrengthLevel()+"', " +
-                "vampirism = '"+user.getVampirismLevel()+"', " +
-                "boostdrop = '"+user.getDropBoostLevel()+"', " +
-                "confinement = '"+user.getConfinementLevel()+"', " +
+                "health = '"+user.getLevel(PerkType.HEALTH)+"', " +
+                "speed = '"+user.getLevel(PerkType.SPEED)+"', " +
+                "strength = '"+user.getLevel(PerkType.STRENGTH)+"', " +
+                "vampirism = '"+user.getLevel(PerkType.VAMPIRISM)+"', " +
+                "boostdrop = '"+user.getLevel(PerkType.BOOSTDROP)+"', " +
+                "confinement = '"+user.getLevel(PerkType.CONFINEMENT)+"', " +
                 "killusers = '"+userList+"' " +
                 "WHERE uuid = '"+player.getUniqueId()+"'");
     }

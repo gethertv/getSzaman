@@ -3,15 +3,19 @@ package me.gethertv.szaman;
 import me.gethertv.szaman.api.ISzamanApi;
 import me.gethertv.szaman.cmd.AdminSzaman;
 import me.gethertv.szaman.cmd.SzamanCmd;
+import me.gethertv.szaman.data.PerkManager;
+import me.gethertv.szaman.data.PerkType;
 import me.gethertv.szaman.data.User;
 import me.gethertv.szaman.listeners.*;
 import me.gethertv.szaman.placeholder.StatsPoints;
 import me.gethertv.szaman.storage.Mysql;
 import me.gethertv.szaman.task.AutoSave;
+import me.gethertv.szaman.type.SellType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -29,20 +33,14 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
 
     private Mysql sql;
 
-    private HashMap<Integer, Integer> healthCost = new HashMap<>();
-    private HashMap<Integer, Integer> speedCost = new HashMap<>();
-    private HashMap<Integer, Integer> strengthCost = new HashMap<>();
-    private HashMap<Integer, Integer> vampirismCost = new HashMap<>();
-    private HashMap<Integer, Integer> boostDropCost = new HashMap<>();
-    private HashMap<Integer, Double> vampirismData = new HashMap<>();
-    private HashMap<Integer, Integer> confinementCost = new HashMap<>();
-
     private List<Material> boostMaterial = new ArrayList<>();
 
     private double chanceConfinement;
 
-    private HashMap<Integer, Double> dropMultiply = new HashMap<>();
+    private HashMap<PerkType, PerkManager> perkData = new HashMap<>();
 
+    public static SellType SELL_TYPE;
+    public static ItemStack ITEM_ODLAMEK;
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -59,13 +57,12 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
             (new StatsPoints()).register();
 
-        loadMultiplyDrop();
         loadMaterialBoost();
+        injectVault();
         /*
-            LOAD PERKS COST DATA
+            LOAD PERKS COST DATA AND VALUE
          */
         loadPerksData();
-        loadVapirismData();
 
         loadUserOnline();
 
@@ -78,24 +75,27 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
 
         // register command
         getCommand("szaman").setExecutor(new SzamanCmd());
-        getCommand("aszaman").setExecutor(new AdminSzaman());
+        AdminSzaman adminSzaman = new AdminSzaman();
+        getCommand("aszaman").setExecutor(adminSzaman);
+        getCommand("aszaman").setTabCompleter(adminSzaman);
+
 
         // autosave data user
         new AutoSave().runTaskTimer(this, 20L*300, 20L*300);
     }
 
+    private void injectVault() {
+        SELL_TYPE = SellType.valueOf(getConfig().getString("sell-type").toUpperCase());
+
+        if(getConfig().isSet("odlamek"))
+        {
+            ITEM_ODLAMEK = getConfig().getItemStack("odlamek").clone();
+        }
+    }
+
     private void loadMaterialBoost() {
         for(String materialName : getConfig().getStringList("drop-material"))
             boostMaterial.add(Material.valueOf(materialName.toUpperCase()));
-    }
-
-    private void loadMultiplyDrop() {
-        for(String level : getConfig().getConfigurationSection("multiply-drop").getKeys(false))
-        {
-            int levelDrop = Integer.parseInt(level);
-            double multiply = getConfig().getDouble("multiply-drop."+level);
-            dropMultiply.put(levelDrop, multiply);
-        }
     }
 
     @Override
@@ -117,75 +117,14 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
         HandlerList.unregisterAll(this);
     }
 
-    private void loadVapirismData() {
-        for(String level : getConfig().getConfigurationSection("vampirism-chance").getKeys(false))
-        {
-            vampirismData.put(Integer.parseInt(level), getConfig().getDouble("vampirism-chance."+level));
-        }
-    }
-
     private void loadPerksData() {
 
         chanceConfinement = getConfig().getDouble("confinement.chance");
 
-        /*
-            LOAD HEALTH DATA COST
-         */
+        for(String typeString : getConfig().getConfigurationSection("data").getKeys(false))
         {
-            for(String level : getConfig().getConfigurationSection("cost-data.health").getKeys(false))
-            {
-                healthCost.put(Integer.parseInt(level), getConfig().getInt("cost-data.health."+level));
-            }
-        }
-
-        /*
-            LOAD SPEED DATA COST
-         */
-        {
-            for(String level : getConfig().getConfigurationSection("cost-data.speed").getKeys(false))
-            {
-                speedCost.put(Integer.parseInt(level), getConfig().getInt("cost-data.speed."+level));
-            }
-        }
-
-        /*
-            LOAD STRENGTH DATA COST
-         */
-        {
-            for(String level : getConfig().getConfigurationSection("cost-data.strength").getKeys(false))
-            {
-                strengthCost.put(Integer.parseInt(level), getConfig().getInt("cost-data.strength."+level));
-            }
-        }
-
-         /*
-            LOAD VAMPIRISM DATA COST
-         */
-        {
-            for(String level : getConfig().getConfigurationSection("cost-data.vampirism").getKeys(false))
-            {
-                vampirismCost.put(Integer.parseInt(level), getConfig().getInt("cost-data.vampirism."+level));
-            }
-        }
-
-        /*
-            LOAD BOOSTDROP DATA COST
-         */
-        {
-            for(String level : getConfig().getConfigurationSection("cost-data.boostdrop").getKeys(false))
-            {
-                boostDropCost.put(Integer.parseInt(level), getConfig().getInt("cost-data.boostdrop."+level));
-            }
-        }
-
-        /*
-            LOAD CONFINEMENT DATA COST
-         */
-        {
-            for(String level : getConfig().getConfigurationSection("cost-data.confinement").getKeys(false))
-            {
-                confinementCost.put(Integer.parseInt(level), getConfig().getInt("cost-data.confinement."+level));
-            }
+            PerkType perkType = PerkType.valueOf(typeString.toUpperCase());
+            perkData.put(perkType, new PerkManager(perkType, this));
         }
     }
 
@@ -208,49 +147,24 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
         String password = getConfig().getString("mysql.password");
         String database = getConfig().getString("mysql.database");
         String port = getConfig().getString("mysql.port");
+        String customUrl = null;
+
+        if(getConfig().isSet("mysql.custom-url"))
+        {
+            customUrl = getConfig().getString("mysql.custom-url");
+        }
 
         boolean ssl = false;
         if (getConfig().get("mysql.ssl") != null) {
             ssl = getConfig().getBoolean("mysql.ssl");
         }
-        this.sql = new Mysql(host, username, password, database, port, ssl);
+        this.sql = new Mysql(host, username, password, database, port, customUrl, ssl);
     }
 
     public double getChanceConfinement() {
         return chanceConfinement;
     }
 
-    public HashMap<Integer, Double> getDropMultiply() {
-        return dropMultiply;
-    }
-
-    public HashMap<Integer, Double> getVampirismData() {
-        return vampirismData;
-    }
-
-    public HashMap<Integer, Integer> getBoostDropCost() {
-        return boostDropCost;
-    }
-
-    public HashMap<Integer, Integer> getHealthCost() {
-        return healthCost;
-    }
-
-    public HashMap<Integer, Integer> getSpeedCost() {
-        return speedCost;
-    }
-
-    public HashMap<Integer, Integer> getStrengthCost() {
-        return strengthCost;
-    }
-
-    public HashMap<Integer, Integer> getVampirismCost() {
-        return vampirismCost;
-    }
-
-    public HashMap<Integer, Integer> getConfinementCost() {
-        return confinementCost;
-    }
 
     public Mysql getSql() {
         return sql;
@@ -277,5 +191,9 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
                 return true;
         }
         return false;
+    }
+
+    public HashMap<PerkType, PerkManager> getPerkData() {
+        return perkData;
     }
 }
