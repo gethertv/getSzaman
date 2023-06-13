@@ -1,5 +1,6 @@
 package me.gethertv.szaman.utils;
 
+import me.gethertv.szaman.Szaman;
 import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
@@ -26,12 +27,12 @@ public class ColorFixer {
         return input;
     }
 
-    public static String addLorePerks(String input, int price) {
+    public static String addLorePerks(String input, String info) {
         if (input == null || input.isEmpty()) {
             return input;
         }
 
-        input = input.replace("{price}", String.valueOf(price));
+        input = input.replace("{price-info}", info);
         input = ChatColor.translateAlternateColorCodes('&', input);
         return input;
     }
@@ -41,6 +42,8 @@ public class ColorFixer {
         if (input == null || input.isEmpty()) {
             return input;
         }
+        String maxLevel = Szaman.getInstance().getConfig().getString("max-level");
+        String priceInfo = Szaman.getInstance().getConfig().getString("price-info");
         List<String> lore = new ArrayList<>();
         for (int i = 0; i < input.size(); i++) {
             if(input.get(i).equalsIgnoreCase("{info}"))
@@ -48,7 +51,13 @@ public class ColorFixer {
                 lore.addAll(ColorFixer.addColors(infoLore));
                 continue;
             }
-            lore.add(addLorePerks(input.get(i), price));
+            if(price<0) {
+                lore.add(addLorePerks(input.get(i), maxLevel));
+            }
+            else {
+                priceInfo = priceInfo.replace("{price}", String.valueOf(price));
+                lore.add(addLorePerks(input.get(i), priceInfo));
+            }
         }
         return lore;
     }

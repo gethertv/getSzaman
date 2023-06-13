@@ -74,40 +74,41 @@ public class User {
 
 
 
+
         if (config.getBoolean("health.enable")) {
             int level = getLevel(PerkType.HEALTH);
             Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.HEALTH).getPerk(level+1);
-            loadPerk(PerkType.HEALTH, level, nextPerk!=null ? nextPerk.getCost() : 0);
+            loadPerk(PerkType.HEALTH, level, nextPerk!=null ? nextPerk.getCost() : -1);
         }
         if (config.getBoolean("speed.enable"))
         {
             int level = getLevel(PerkType.SPEED);
             Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.SPEED).getPerk(level+1);
-            loadPerk(PerkType.SPEED, level , nextPerk!=null ? nextPerk.getCost() : 0);
+            loadPerk(PerkType.SPEED, level , nextPerk!=null ? nextPerk.getCost() : -1);
         }
         if (config.getBoolean("strength.enable"))
         {
             int level = getLevel(PerkType.STRENGTH);
             Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.STRENGTH).getPerk(level+1);
-            loadPerk(PerkType.STRENGTH, level , nextPerk!=null ? nextPerk.getCost() : 0);
+            loadPerk(PerkType.STRENGTH, level , nextPerk!=null ? nextPerk.getCost() : -1);
         }
         if (config.getBoolean("vampirism.enable"))
         {
             int level = getLevel(PerkType.VAMPIRISM);
             Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.VAMPIRISM).getPerk(level+1);
-            loadPerk(PerkType.VAMPIRISM, level , nextPerk!=null ? nextPerk.getCost() : 0);
+            loadPerk(PerkType.VAMPIRISM, level , nextPerk!=null ? nextPerk.getCost() : -1);
         }
         if (config.getBoolean("boostdrop.enable"))
         {
             int level = getLevel(PerkType.BOOSTDROP);
             Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.BOOSTDROP).getPerk(level+1);
-            loadPerk(PerkType.BOOSTDROP, level , nextPerk!=null ? nextPerk.getCost() : 0);
+            loadPerk(PerkType.BOOSTDROP, level , nextPerk!=null ? nextPerk.getCost() : -1);
         }
         if (config.getBoolean("confinement.enable"))
         {
             int level = getLevel(PerkType.CONFINEMENT);
             Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.CONFINEMENT).getPerk(level+1);
-            loadPerk(PerkType.CONFINEMENT, level , nextPerk!=null ? nextPerk.getCost() : 0);
+            loadPerk(PerkType.CONFINEMENT, level , nextPerk!=null ? nextPerk.getCost() : -1);
         }
         if (config.getBoolean("nolimit-firework.enable"))
         {
@@ -157,6 +158,9 @@ public class User {
         List<String> lore = new ArrayList<>();
         lore.addAll(config.getStringList(name + ".lore"));
 
+        if(price>0)
+            lore.add(config.getString("extra-line-buy"));
+
 
         List<String> infoLore = new ArrayList<>();
 
@@ -166,7 +170,7 @@ public class User {
             Perk perk = entry.getValue();
             String active = config.getString(name+".format.active");
             String noActive = config.getString(name+".format.no-active");
-            if(level==userLevel)
+            if(level<=userLevel)
                 infoLore.add(active
                         .replace("{level}", String.valueOf(level))
                         .replace("{value}", (type==PerkType.HEALTH ? decimalFormat.format(perk.getValue()/2) : decimalFormat.format(perk.getValue())))
