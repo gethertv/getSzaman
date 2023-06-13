@@ -169,13 +169,13 @@ public class User {
             if(level==userLevel)
                 infoLore.add(active
                         .replace("{level}", String.valueOf(level))
-                        .replace("{value}", decimalFormat.format(perk.getValue()))
+                        .replace("{value}", (type==PerkType.HEALTH ? decimalFormat.format(perk.getValue()/2) : decimalFormat.format(perk.getValue())))
                 );
 
             else
                 infoLore.add(noActive
                         .replace("{level}", String.valueOf(level))
-                        .replace("{value}", decimalFormat.format(perk.getValue()))
+                        .replace("{value}", (type==PerkType.HEALTH ? decimalFormat.format(perk.getValue()/2) : decimalFormat.format(perk.getValue())))
                 );
         }
 

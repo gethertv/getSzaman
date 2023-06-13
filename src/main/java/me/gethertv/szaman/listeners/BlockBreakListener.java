@@ -29,11 +29,6 @@ public class BlockBreakListener implements Listener {
         Player player = event.getPlayer();
         if(plugin.getBoostMaterial().contains(event.getBlock().getType()))
         {
-            List<ItemStack> items = new ArrayList<>();
-            items.addAll(event.getBlock().getDrops());
-
-            event.setDropItems(false);
-
             User user = Szaman.getInstance().getUserData().get(player.getUniqueId());
             if(user==null)
                 return;
@@ -41,6 +36,12 @@ public class BlockBreakListener implements Listener {
             int level = user.getLevel(PerkType.BOOSTDROP);
             if(level<=0)
                 return;
+
+            List<ItemStack> items = new ArrayList<>();
+            items.addAll(event.getBlock().getDrops());
+
+            event.setDropItems(false);
+
 
             double multiply = plugin.getPerkData().get(PerkType.BOOSTDROP).getPerk(level).getValue();
 
