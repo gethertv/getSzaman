@@ -5,4 +5,6 @@ import org.bukkit.entity.Player;
 public interface ISzamanApi {
 
     public boolean hasCooldown(Player player);
+
+    public double getMultiplyDrop(Player player);
 }

@@ -3,6 +3,7 @@ package me.gethertv.szaman;
 import me.gethertv.szaman.api.ISzamanApi;
 import me.gethertv.szaman.cmd.AdminSzaman;
 import me.gethertv.szaman.cmd.SzamanCmd;
+import me.gethertv.szaman.data.Perk;
 import me.gethertv.szaman.data.PerkManager;
 import me.gethertv.szaman.data.PerkType;
 import me.gethertv.szaman.data.User;
@@ -191,6 +192,21 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
                 return true;
         }
         return false;
+    }
+
+    @Override
+    public double getMultiplyDrop(Player player) {
+        User user = getUserData().get(player.getUniqueId());
+        if(user!=null)
+        {
+            int level = user.getLevel(PerkType.BOOSTDROP);
+            Perk perk = getPerkData().get(PerkType.BOOSTDROP).getPerk(level);
+            if(perk!=null)
+            {
+                return perk.getValue();
+            }
+        }
+        return 1;
     }
 
     public HashMap<PerkType, PerkManager> getPerkData() {
