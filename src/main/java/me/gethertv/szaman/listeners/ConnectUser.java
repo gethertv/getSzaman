@@ -31,7 +31,7 @@ public class ConnectUser implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                Szaman.getInstance().getSql().updatePlayer(player);
+                Szaman.getInstance().getSql().updateUser(player);
                 Szaman.getInstance().getUserData().remove(player.getUniqueId());
             }
         }.runTaskAsynchronously(Szaman.getInstance());

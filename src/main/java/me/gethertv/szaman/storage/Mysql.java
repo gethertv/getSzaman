@@ -10,7 +10,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 import java.sql.*;
 import java.util.*;
 
-public class Mysql {
+public class Mysql extends DatabaseManager {
     private String host;
     private String username;
     private String password;
@@ -22,14 +22,13 @@ public class Mysql {
     private String customUrlConnection;
     private Connection connection;
 
-    public Mysql(String host, String username, String password, String database, String port, String customUrlConnection, boolean ssl) {
+    public Mysql(String host, String username, String password, String database, String port, boolean ssl) {
         this.host = host;
         this.username = username;
         this.password = password;
         this.database = database;
         this.port = port;
         this.ssl = ssl;
-        this.customUrlConnection = customUrlConnection;
 
         openConnection();
         createTable();
@@ -168,39 +167,9 @@ public class Mysql {
 
     public void createUser(Player player)
     {
-        update("INSERT INTO szaman (uuid, username) VALUES ('"+player.getUniqueId()+"', '"+player.getName()+"')");
+        update("INSERT INTO "+table+" (uuid, username) VALUES ('"+player.getUniqueId()+"', '"+player.getName()+"')");
     }
 
-    public void updatePlayer(Player player)
-    {
-        User user = Szaman.getInstance().getUserData().get(player.getUniqueId());
-
-        String userList = "";
-        List<UUID> toRemove =  new ArrayList<>();
-        for(Map.Entry<UUID, Long> killData : user.getLastTimeKill().entrySet())
-        {
-            if(killData.getValue()<=System.currentTimeMillis())
-            {
-                toRemove.add(killData.getKey());
-                continue;
-            }
-            userList+=killData.getKey()+":"+killData.getValue()+";";
-        }
-
-        for(UUID uuid : toRemove)
-            user.getLastTimeKill().remove(uuid);
-
-        update("UPDATE szaman SET " +
-                "points = '"+user.getPoints()+"', " +
-                "health = '"+user.getLevel(PerkType.HEALTH)+"', " +
-                "speed = '"+user.getLevel(PerkType.SPEED)+"', " +
-                "strength = '"+user.getLevel(PerkType.STRENGTH)+"', " +
-                "vampirism = '"+user.getLevel(PerkType.VAMPIRISM)+"', " +
-                "boostdrop = '"+user.getLevel(PerkType.BOOSTDROP)+"', " +
-                "confinement = '"+user.getLevel(PerkType.CONFINEMENT)+"', " +
-                "killusers = '"+userList+"' " +
-                "WHERE uuid = '"+player.getUniqueId()+"'");
-    }
 
     public void loadUser(Player player) {
 
@@ -211,7 +180,7 @@ public class Mysql {
             return;
         }
 
-        String str = "SELECT * FROM szaman WHERE uuid = '" + player.getUniqueId() + "'";
+        String str = "SELECT * FROM "+table+" WHERE uuid = '" + player.getUniqueId() + "'";
         try {
             ResultSet resultSet = getResult(str);
             while (resultSet.next()) {
@@ -253,6 +222,37 @@ public class Mysql {
 
     }
 
+    @Override
+    public void updateUser(Player player) {
+        User user = Szaman.getInstance().getUserData().get(player.getUniqueId());
+
+        String userList = "";
+        List<UUID> toRemove =  new ArrayList<>();
+        for(Map.Entry<UUID, Long> killData : user.getLastTimeKill().entrySet())
+        {
+            if(killData.getValue()<=System.currentTimeMillis())
+            {
+                toRemove.add(killData.getKey());
+                continue;
+            }
+            userList+=killData.getKey()+":"+killData.getValue()+";";
+        }
+
+        for(UUID uuid : toRemove)
+            user.getLastTimeKill().remove(uuid);
+
+        update("UPDATE "+table+" SET " +
+                "points = '"+user.getPoints()+"', " +
+                "health = '"+user.getLevel(PerkType.HEALTH)+"', " +
+                "speed = '"+user.getLevel(PerkType.SPEED)+"', " +
+                "strength = '"+user.getLevel(PerkType.STRENGTH)+"', " +
+                "vampirism = '"+user.getLevel(PerkType.VAMPIRISM)+"', " +
+                "boostdrop = '"+user.getLevel(PerkType.BOOSTDROP)+"', " +
+                "confinement = '"+user.getLevel(PerkType.CONFINEMENT)+"', " +
+                "killusers = '"+userList+"' " +
+                "WHERE uuid = '"+player.getUniqueId()+"'");
+    }
+
 
     public ResultSet getResult(String paramString) {
         ResultSet resultSet = null;
@@ -269,7 +269,7 @@ public class Mysql {
     }
 
     public void createTable() {
-        String create = "CREATE TABLE IF NOT EXISTS szaman (" +
+        String create = "CREATE TABLE IF NOT EXISTS "+table+" (" +
                 "id INT(10) AUTO_INCREMENT, PRIMARY KEY (id)," +
                 "uuid VARCHAR(100), " +
                 "username VARCHAR(100), " +
@@ -292,7 +292,7 @@ public class Mysql {
     }
 
     private int getPlayerID(UUID uuid) {
-        return getInt("id", "SELECT id FROM szaman WHERE uuid='" + uuid.toString() + "'");
+        return getInt("id", "SELECT id FROM "+table+" WHERE uuid='" + uuid.toString() + "'");
     }
 
 

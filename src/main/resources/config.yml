@@ -10,11 +10,17 @@ inv:
   size: 36
   title: "&0Szaman"
 
+# type [ SQLITE, MYSQL ]
+database: SQLITE
+
+sqlite:
+  name: "get_boxsettings"
 
 # Type: [ ITEM, COINS ]
 # Jeezeli ustawisz ITEM, pamietaj zeby ustawic
 # walute /aszaman setodlamek
 sell-type: ITEM
+
 
 max-level: "&cMAX POZIOM"
 price-info: "&cKoszt: &f{price} *"

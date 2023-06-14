@@ -15,7 +15,7 @@ public class AutoSave extends BukkitRunnable {
             public void run() {
 
                 for(Player player : Bukkit.getOnlinePlayers())
-                    Szaman.getInstance().getSql().updatePlayer(player);
+                    Szaman.getInstance().getSql().updateUser(player);
 
             }
         }.runTaskAsynchronously(Szaman.getInstance());

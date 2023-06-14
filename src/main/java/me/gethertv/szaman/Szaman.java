@@ -9,7 +9,10 @@ import me.gethertv.szaman.data.PerkType;
 import me.gethertv.szaman.data.User;
 import me.gethertv.szaman.listeners.*;
 import me.gethertv.szaman.placeholder.StatsPoints;
+import me.gethertv.szaman.storage.DatabaseManager;
+import me.gethertv.szaman.storage.DatabaseType;
 import me.gethertv.szaman.storage.Mysql;
+import me.gethertv.szaman.storage.SQLite;
 import me.gethertv.szaman.task.AutoSave;
 import me.gethertv.szaman.type.SellType;
 import org.bukkit.Bukkit;
@@ -42,6 +45,8 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
 
     public static SellType SELL_TYPE;
     public static ItemStack ITEM_ODLAMEK;
+
+    private DatabaseManager databaseManager;
     @Override
     public void onEnable() {
         // Plugin startup logic
@@ -108,7 +113,7 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
         if(sql!=null)
         {
             for(Player player : Bukkit.getOnlinePlayers()) {
-                sql.updatePlayer(player);
+                sql.updateUser(player);
                 player.closeInventory();
             }
         }
@@ -148,18 +153,12 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
         String password = getConfig().getString("mysql.password");
         String database = getConfig().getString("mysql.database");
         String port = getConfig().getString("mysql.port");
-        String customUrl = null;
-
-        if(getConfig().isSet("mysql.custom-url"))
-        {
-            customUrl = getConfig().getString("mysql.custom-url");
-        }
 
         boolean ssl = false;
         if (getConfig().get("mysql.ssl") != null) {
             ssl = getConfig().getBoolean("mysql.ssl");
         }
-        this.sql = new Mysql(host, username, password, database, port, customUrl, ssl);
+        this.sql = new Mysql(host, username, password, database, port, ssl);
     }
 
     public double getChanceConfinement() {
@@ -209,6 +208,30 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
         return 1;
     }
 
+    private void implementsSql() {
+        DatabaseType databaseType = DatabaseType.valueOf(getConfig().getString("database"));
+        if(databaseType==DatabaseType.MYSQL)
+            setupMysql();
+
+        if(databaseType==DatabaseType.SQLITE)
+            databaseManager = new SQLite(getConfig().getString("sqlite.name"));
+
+    }
+    private void setupMysql() {
+        String host = getConfig().getString("mysql.host");
+        String username = getConfig().getString("mysql.username");
+        String password = getConfig().getString("mysql.password");
+        String database = getConfig().getString("mysql.database");
+        String port = getConfig().getString("mysql.port");
+
+        boolean ssl = false;
+        if (getConfig().get("mysql.ssl") != null) {
+            ssl = getConfig().getBoolean("mysql.ssl");
+        }
+
+        databaseManager = new Mysql(host, username, password, database, port, ssl);
+
+    }
     public HashMap<PerkType, PerkManager> getPerkData() {
         return perkData;
     }
