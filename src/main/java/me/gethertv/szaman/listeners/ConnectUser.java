@@ -19,7 +19,7 @@ public class ConnectUser implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                Szaman.getInstance().getSql().loadUser(event.getPlayer());
+                Szaman.getInstance().getDatabaseManager().loadUser(event.getPlayer());
             }
         }.runTaskAsynchronously(Szaman.getInstance());
     }
@@ -31,7 +31,7 @@ public class ConnectUser implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                Szaman.getInstance().getSql().updateUser(player);
+                Szaman.getInstance().getDatabaseManager().updateUser(player);
                 Szaman.getInstance().getUserData().remove(player.getUniqueId());
             }
         }.runTaskAsynchronously(Szaman.getInstance());

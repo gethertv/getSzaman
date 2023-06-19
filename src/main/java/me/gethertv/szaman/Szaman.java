@@ -34,10 +34,7 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
     private static Szaman instance;
 
     private HashMap<UUID, User> userData = new HashMap<>();
-
-    private Mysql sql;
-
-    private List<Material> boostMaterial = new ArrayList<>();
+        private List<Material> boostMaterial = new ArrayList<>();
 
     private double chanceConfinement;
 
@@ -53,13 +50,13 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
         instance = this;
         saveDefaultConfig();
 
-        setupSql();
-        if (!sql.isConnected()) {
+        implementsSql();
+        if(!databaseManager.isConnected())
+        {
             getLogger().log (Level.WARNING, "Nie można połączyć sie z baza danych!");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
             (new StatsPoints()).register();
 
@@ -110,10 +107,10 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
             (new StatsPoints()).unregister();
 
-        if(sql!=null)
+        if(getDatabaseManager()!=null)
         {
             for(Player player : Bukkit.getOnlinePlayers()) {
-                sql.updateUser(player);
+                getDatabaseManager().updateUser(player);
                 player.closeInventory();
             }
         }
@@ -140,34 +137,16 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
             public void run() {
                 for(Player player : Bukkit.getOnlinePlayers())
                 {
-                    sql.loadUser(player);
+                    getDatabaseManager().loadUser(player);
                 }
             }
         }.runTaskAsynchronously(Szaman.getInstance());
     }
 
 
-    private void setupSql() {
-        String host = getConfig().getString("mysql.host");
-        String username = getConfig().getString("mysql.username");
-        String password = getConfig().getString("mysql.password");
-        String database = getConfig().getString("mysql.database");
-        String port = getConfig().getString("mysql.port");
-
-        boolean ssl = false;
-        if (getConfig().get("mysql.ssl") != null) {
-            ssl = getConfig().getBoolean("mysql.ssl");
-        }
-        this.sql = new Mysql(host, username, password, database, port, ssl);
-    }
 
     public double getChanceConfinement() {
         return chanceConfinement;
-    }
-
-
-    public Mysql getSql() {
-        return sql;
     }
 
     public static Szaman getInstance() {
@@ -232,6 +211,11 @@ public final class Szaman extends JavaPlugin implements ISzamanApi {
         databaseManager = new Mysql(host, username, password, database, port, ssl);
 
     }
+
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
+    }
+
     public HashMap<PerkType, PerkManager> getPerkData() {
         return perkData;
     }

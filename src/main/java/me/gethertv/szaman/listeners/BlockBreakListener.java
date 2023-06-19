@@ -27,9 +27,12 @@ public class BlockBreakListener implements Listener {
     {
         this.plugin = plugin;
     }
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBreakBlock(BlockBreakEvent event)
     {
+        if(event.isCancelled())
+            return;
+
         Player player = event.getPlayer();
         Block block = event.getBlock();
         if(plugin.getBoostMaterial().contains(event.getBlock().getType()))
@@ -54,11 +57,18 @@ public class BlockBreakListener implements Listener {
             items.forEach(item -> {
                 double amount = item.getAmount()*multiply;
                 item.setAmount((int) amount);
-                loc.getWorld().dropItemNaturally(loc, item);
+                if(isInventoryFull(player))
+                    loc.getWorld().dropItemNaturally(loc, item);
+                else
+                    player.getInventory().addItem(item);
             });
         }
     }
 
+    public boolean isInventoryFull(Player p)
+    {
+        return p.getInventory().firstEmpty() == -1;
+    }
     public int getAmount(int level) {
         int amount = 1;
         Random random = new Random(System.currentTimeMillis());
