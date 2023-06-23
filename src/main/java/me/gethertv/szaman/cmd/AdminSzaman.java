@@ -90,6 +90,26 @@ public class AdminSzaman implements CommandExecutor, TabCompleter {
 
         if(args.length==3)
         {
+            if(args[0].equalsIgnoreCase("give"))
+            {
+                Player player = Bukkit.getPlayer(args[1]);
+                if(player==null)
+                {
+                    sender.sendMessage(ColorFixer.addColors("&cPodany gracz nie jest online!"));
+                    return false;
+                }
+                if(!isInt(args[2]))
+                {
+                    sender.sendMessage(ColorFixer.addColors("&cPodaj liczbe!"));
+                    return false;
+                }
+                int amount = Integer.parseInt(args[2]);
+                ItemStack itemOdlamek = Szaman.ITEM_ODLAMEK.clone();
+                itemOdlamek.setAmount(amount);
+                player.getInventory().addItem(itemOdlamek);
+                sender.sendMessage(ColorFixer.addColors("&aPomyslnie nadano odlamek!"));
+                return true;
+            }
             if(args[0].equalsIgnoreCase("set"))
             {
                 Player player = Bukkit.getPlayer(args[1]);

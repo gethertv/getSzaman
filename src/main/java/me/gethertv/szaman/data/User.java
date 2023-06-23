@@ -73,8 +73,6 @@ public class User {
         FileConfiguration config = Szaman.getInstance().getConfig();
 
 
-
-
         if (config.getBoolean("health.enable")) {
             int level = getLevel(PerkType.HEALTH);
             Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.HEALTH).getPerk(level+1);
@@ -108,14 +106,13 @@ public class User {
         {
             int level = getLevel(PerkType.CONFINEMENT);
             Perk nextPerk = Szaman.getInstance().getPerkData().get(PerkType.CONFINEMENT).getPerk(level+1);
+
             loadPerk(PerkType.CONFINEMENT, level , nextPerk!=null ? nextPerk.getCost() : -1);
         }
         if (config.getBoolean("nolimit-firework.enable"))
         {
             loadPerkFirework("nolimit-firework", config.getInt("nolimit-firework.cost"));
         }
-
-
     }
 
     private void loadPerkFirework(String name, int price) {
@@ -135,7 +132,9 @@ public class User {
         itemMeta.setLore(ColorFixer.addLorePerks(
                 lore,
                 price,
-                infoLore));
+                infoLore,
+            null
+        ));
 
         itemStack.setItemMeta(itemMeta);
 
@@ -143,7 +142,7 @@ public class User {
 
     }
 
-    public void loadPerk(PerkType type, int userLevel, int price) {
+    public void loadPerk(PerkType type, int userLevel, int price ) {
 
         FileConfiguration config = Szaman.getInstance().getConfig();
         String name = type.name().toLowerCase();
@@ -183,11 +182,22 @@ public class User {
                 );
         }
 
+        String levelName;
+
+        if(price<0)
+            levelName = Szaman.getInstance().getConfig().getString("max");
+        else
+            if(userLevel==0)
+                levelName = Szaman.getInstance().getConfig().getString("no-level");
+            else
+                levelName = String.valueOf(userLevel);
 
         itemMeta.setLore(ColorFixer.addLorePerks(
                 lore,
                 price,
-                infoLore));
+                infoLore,
+                levelName
+        ));
 
         itemStack.setItemMeta(itemMeta);
 

@@ -57,10 +57,15 @@ public class BlockBreakListener implements Listener {
             items.forEach(item -> {
                 double amount = item.getAmount()*multiply;
                 item.setAmount((int) amount);
-                if(isInventoryFull(player))
-                    loc.getWorld().dropItemNaturally(loc, item);
-                else
-                    player.getInventory().addItem(item);
+                if(plugin.getConfig().getBoolean("drop-to-inv"))
+                {
+                    if(!isInventoryFull(player)) {
+                        player.getInventory().addItem(item);
+                        return;
+                    }
+                }
+                loc.getWorld().dropItemNaturally(loc, item);
+
             });
         }
     }

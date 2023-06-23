@@ -10,6 +10,14 @@ inv:
   size: 36
   title: "&0Szaman"
 
+
+
+max: "&cMAX"
+no-level: "&cNie posiadasz odblokowanego!"
+
+# czy ma byc walczone drop do eq
+drop-to-inv: true
+
 # type [ SQLITE, MYSQL ]
 database: SQLITE
 
@@ -20,7 +28,6 @@ sqlite:
 # Jeezeli ustawisz ITEM, pamietaj zeby ustawic
 # walute /aszaman setodlamek
 sell-type: ITEM
-
 
 max-level: "&cMAX POZIOM"
 price-info: "&cKoszt: &f{price} *"

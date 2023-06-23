@@ -38,7 +38,7 @@ public class ColorFixer {
     }
 
 
-    public static List<String> addLorePerks(List<String> input, int price, List<String> infoLore) {
+    public static List<String> addLorePerks(List<String> input, int price, List<String> infoLore, String level) {
         if (input == null || input.isEmpty()) {
             return input;
         }
@@ -46,6 +46,11 @@ public class ColorFixer {
         String priceInfo = Szaman.getInstance().getConfig().getString("price-info");
         List<String> lore = new ArrayList<>();
         for (int i = 0; i < input.size(); i++) {
+            if(level!=null) {
+                input.set(i, input.get(i).replace("{level}", level));
+
+            }
+
             if(input.get(i).equalsIgnoreCase("{info}"))
             {
                 lore.addAll(ColorFixer.addColors(infoLore));
