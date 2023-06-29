@@ -4,6 +4,7 @@ import me.gethertv.szaman.Szaman;
 import me.gethertv.szaman.data.PerkType;
 import me.gethertv.szaman.data.User;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -30,11 +31,17 @@ public class BlockBreakListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBreakBlock(BlockBreakEvent event)
     {
+
         if(event.isCancelled())
             return;
 
         Player player = event.getPlayer();
         Block block = event.getBlock();
+
+        if(player.getGameMode()==GameMode.CREATIVE)
+            return;
+
+        Location loc = event.getBlock().getLocation();
         if(plugin.getBoostMaterial().contains(event.getBlock().getType()))
         {
             User user = Szaman.getInstance().getUserData().get(player.getUniqueId());
@@ -53,7 +60,6 @@ public class BlockBreakListener implements Listener {
 
             double multiply = plugin.getPerkData().get(PerkType.BOOSTDROP).getPerk(level).getValue();
 
-            Location loc = event.getBlock().getLocation();
             items.forEach(item -> {
                 double amount = item.getAmount()*multiply;
                 item.setAmount((int) amount);
@@ -67,7 +73,25 @@ public class BlockBreakListener implements Listener {
                 loc.getWorld().dropItemNaturally(loc, item);
 
             });
+            return;
         }
+        List<ItemStack> items = new ArrayList<>();
+        items.addAll(block.getDrops(player.getItemInHand()));
+
+        event.setDropItems(false);
+        items.forEach(item -> {
+            double amount = item.getAmount();
+            item.setAmount((int) amount);
+            if(plugin.getConfig().getBoolean("drop-to-inv"))
+            {
+                if(!isInventoryFull(player)) {
+                    player.getInventory().addItem(item);
+                    return;
+                }
+            }
+            loc.getWorld().dropItemNaturally(loc, item);
+
+        });
     }
 
     public boolean isInventoryFull(Player p)

@@ -184,6 +184,8 @@ confinement:
     no-active: "&c{level}. &7- &c{value}"
   lore:
     - "&7"
+    - "&7Level: {level}"
+    - "&7"
     - "&7Poziomy:"
     - "{info}"
     - "&7"
@@ -200,6 +202,8 @@ health:
     no-active: "&c{level}. &7- &c{value}"
   lore:
     - "&7"
+    - "&7Level: {level}"
+    - "&7"
     - "&7Poziomy:"
     - "{info}"
     - "&7"
@@ -214,6 +218,8 @@ speed:
     active: "&a{level}. &7- &a{value}"
     no-active: "&c{level}. &7- &c{value}"
   lore:
+    - "&7"
+    - "&7Level: {level}"
     - "&7"
     - "&7Poziomy:"
     - "{info}"
@@ -231,6 +237,8 @@ strength:
     no-active: "&c{level}. &7- &c{value}"
   lore:
     - "&7"
+    - "&7Level: {level}"
+    - "&7"
     - "&7Poziomy:"
     - "{info}"
     - "&7"
@@ -247,6 +255,8 @@ vampirism:
     no-active: "&c{level}. &7- &c{value}"
   lore:
     - "&7"
+    - "&7Level: {level}"
+    - "&7"
     - "&7Poziomy:"
     - "{info}"
     - "&7"
@@ -262,6 +272,8 @@ boostdrop:
     active: "&a{level}. &7- &a{value}"
     no-active: "&c{level}. &7- &c{value}"
   lore:
+    - "&7"
+    - "&7Level: {level}"
     - "&7"
     - "&7Poziomy:"
     - "{info}"
