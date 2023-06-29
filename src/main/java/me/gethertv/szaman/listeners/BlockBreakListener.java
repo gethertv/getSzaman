@@ -45,43 +45,40 @@ public class BlockBreakListener implements Listener {
         if(plugin.getBoostMaterial().contains(event.getBlock().getType()))
         {
             User user = Szaman.getInstance().getUserData().get(player.getUniqueId());
-            if(user==null)
-                return;
+            if(user!=null) {
 
-            int level = user.getLevel(PerkType.BOOSTDROP);
-            if(level<=0)
-                return;
+                int level = user.getLevel(PerkType.BOOSTDROP);
+                if (level > 0) {
 
-            List<ItemStack> items = new ArrayList<>();
-            items.addAll(block.getDrops(player.getItemInHand()));
+                    List<ItemStack> items = new ArrayList<>();
+                    items.addAll(block.getDrops(player.getItemInHand()));
 
-            event.setDropItems(false);
+                    event.setDropItems(false);
 
 
-            double multiply = plugin.getPerkData().get(PerkType.BOOSTDROP).getPerk(level).getValue();
+                    double multiply = plugin.getPerkData().get(PerkType.BOOSTDROP).getPerk(level).getValue();
 
-            items.forEach(item -> {
-                double amount = item.getAmount()*multiply;
-                item.setAmount((int) amount);
-                if(plugin.getConfig().getBoolean("drop-to-inv"))
-                {
-                    if(!isInventoryFull(player)) {
-                        player.getInventory().addItem(item);
-                        return;
-                    }
+                    items.forEach(item -> {
+                        double amount = item.getAmount() * multiply;
+                        item.setAmount((int) amount);
+                        if (plugin.getConfig().getBoolean("drop-to-inv")) {
+                            if (!isInventoryFull(player)) {
+                                player.getInventory().addItem(item);
+                                return;
+                            }
+                        }
+                        loc.getWorld().dropItemNaturally(loc, item);
+
+                    });
+                    return;
                 }
-                loc.getWorld().dropItemNaturally(loc, item);
-
-            });
-            return;
+            }
         }
         List<ItemStack> items = new ArrayList<>();
         items.addAll(block.getDrops(player.getItemInHand()));
 
         event.setDropItems(false);
         items.forEach(item -> {
-            double amount = item.getAmount();
-            item.setAmount((int) amount);
             if(plugin.getConfig().getBoolean("drop-to-inv"))
             {
                 if(!isInventoryFull(player)) {
