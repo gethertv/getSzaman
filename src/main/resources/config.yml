@@ -33,13 +33,19 @@ max-level: "&cMAX POZIOM"
 price-info: "&cKoszt: &f{price} *"
 extra-line-buy: "&eKliknij, aby zakupic!"
 
+# https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html
+music:
+  victim: BLOCK_GRASS_BREAK
+  player: BLOCK_ANVIL_PLACE
+
 lang:
   success-upgrade: "&aPomyslnie ulepszono!"
   no-points: "&cNie posiadasz tylu punktow!"
   max-level: "&cPosiadasz najwyzszy poziom!"
-  get-confinement: "&eOtrzymales efekt uwiezienia!"
   confinement-cooldown: "&cPosiadasz efekt uwiezienia!"
-
+  vampirism-heal: "&aWampiryzm uleczył tobie &2{hp}♥"
+  get-confinement: "&cZostałeś uwięziony przez &4{player} &cna &4{time}"
+  put-in-confinement: "&cUwięziłeś gracza &4{player} &cna &4{time}"
 
 drop-material:
   - "DIAMOND_ORE"

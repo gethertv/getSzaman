@@ -15,10 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class BlockBreakListener implements Listener {
 
@@ -42,6 +39,12 @@ public class BlockBreakListener implements Listener {
             return;
 
         Location loc = event.getBlock().getLocation();
+        Map<Enchantment, Integer> enchantFortuna = player.getInventory().getItemInMainHand().getEnchantments();
+        int fortuna = 0;
+        if (enchantFortuna.containsKey(Enchantment.LOOT_BONUS_BLOCKS)) {
+            fortuna = enchantFortuna.get(Enchantment.LOOT_BONUS_BLOCKS);
+        }
+
         if(plugin.getBoostMaterial().contains(event.getBlock().getType()))
         {
             User user = Szaman.getInstance().getUserData().get(player.getUniqueId());
@@ -55,21 +58,20 @@ public class BlockBreakListener implements Listener {
 
                     event.setDropItems(false);
 
-
                     double multiply = plugin.getPerkData().get(PerkType.BOOSTDROP).getPerk(level).getValue();
-
-                    items.forEach(item -> {
-                        double amount = item.getAmount() * multiply;
-                        item.setAmount((int) amount);
+                    for (ItemStack itemStack : items) {
+                        int fortunaAmount = getAmount(fortuna);
+                        double amount = fortunaAmount * multiply;
+                        itemStack.setAmount((int) amount);
                         if (plugin.getConfig().getBoolean("drop-to-inv")) {
                             if (!isInventoryFull(player)) {
-                                player.getInventory().addItem(item);
-                                return;
+                                player.getInventory().addItem(itemStack);
+                                continue;
                             }
                         }
-                        loc.getWorld().dropItemNaturally(loc, item);
+                        loc.getWorld().dropItemNaturally(loc, itemStack);
 
-                    });
+                    }
                     return;
                 }
             }
@@ -78,17 +80,18 @@ public class BlockBreakListener implements Listener {
         items.addAll(block.getDrops(player.getItemInHand()));
 
         event.setDropItems(false);
-        items.forEach(item -> {
-            if(plugin.getConfig().getBoolean("drop-to-inv"))
-            {
-                if(!isInventoryFull(player)) {
+        for (ItemStack item : items) {
+            int fortunaAmount = getAmount(fortuna);
+            item.setAmount(fortunaAmount);
+            if (plugin.getConfig().getBoolean("drop-to-inv")) {
+                if (!isInventoryFull(player)) {
                     player.getInventory().addItem(item);
-                    return;
+                    continue;
                 }
             }
             loc.getWorld().dropItemNaturally(loc, item);
 
-        });
+        }
     }
 
     public boolean isInventoryFull(Player p)

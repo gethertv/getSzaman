@@ -8,9 +8,12 @@ import me.gethertv.szaman.data.User;
 import me.gethertv.szaman.type.SellType;
 import me.gethertv.szaman.utils.ColorFixer;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -58,13 +61,14 @@ public class DamageEntity implements Listener {
 
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onDamge(EntityDamageByEntityEvent event)
     {
-        if(!(event.getDamager() instanceof Player))
+        if(event.isCancelled())
             return;
 
-
+        if(!(event.getDamager() instanceof Player))
+            return;
 
         Player player = (Player) event.getDamager();
         User user = Szaman.getInstance().getUserData().get(player.getUniqueId());
@@ -80,11 +84,15 @@ public class DamageEntity implements Listener {
                     if(perk==null)
                         return;
 
+                    FileConfiguration config = Szaman.getInstance().getConfig();
                     double cooldown = perk.getValue();
 
                     double valueTime = 1000 * cooldown;
                     InteractListener.getFireworkDisable().put(victim.getUniqueId(), System.currentTimeMillis() + (int) valueTime);
-                    victim.sendMessage(ColorFixer.addColors(Szaman.getInstance().getConfig().getString("lang.get-confinement")));
+                    victim.sendMessage(ColorFixer.addColors(config.getString("lang.get-confinement").replace("{player}", player.getName()).replace("{time}", String.format("%.2f", cooldown))));
+                    victim.playSound(victim.getLocation(), Sound.valueOf(config.getString("music.victim").toUpperCase()), 2F, 2F);
+                    player.sendMessage(ColorFixer.addColors(config.getString("lang.put-in-confinement").replace("{player}", victim.getName()).replace("{time}", String.format("%.2f", cooldown))));
+                    player.playSound(victim.getLocation(), Sound.valueOf(config.getString("music.player").toUpperCase()), 2F, 2F);
                 }
             }
         }
@@ -109,6 +117,8 @@ public class DamageEntity implements Listener {
                 player.setHealth(player.getMaxHealth());
             else
                 player.setHealth(heal);
+
+            player.sendMessage(ColorFixer.addColors(Szaman.getInstance().getConfig().getString("lang.vampirism-heal").replace("{hp}", String.format("%.2f", event.getFinalDamage()))));
         }
 
     }
